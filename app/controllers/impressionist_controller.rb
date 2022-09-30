@@ -135,7 +135,7 @@ module ImpressionistController
     def direct_create_statement(query_params={},impressionable=nil)
       query_params.reverse_merge!(
         :impressionable_type => controller_name.singularize.camelize,
-        :impressionable_id => impressionable.present? ? impressionable.id : params[:id]
+        :impressionable_id => impressionable.present? ? impressionable.id : @planner.id
         )
       associative_create_statement(query_params)
     end
