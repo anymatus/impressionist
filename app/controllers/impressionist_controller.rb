@@ -1,5 +1,8 @@
 require 'digest/sha2'
 
+MODEL_FIELD = {
+  'planner'   => 'slugs'
+}.freeze
 
 module ImpressionistController
   module ClassMethods
@@ -133,11 +136,27 @@ module ImpressionistController
 
     # creates a statment hash that contains default values for creating an impression.
     def direct_create_statement(query_params={},impressionable=nil)
+      id = get_objectid(params[:id])
+
       query_params.reverse_merge!(
         :impressionable_type => controller_name.singularize.camelize,
-        :impressionable_id => impressionable.present? ? impressionable.id : @planner.id
+        :impressionable_id => impressionable.present? ? impressionable.id : id
         )
       associative_create_statement(query_params)
+    end
+
+    def get_objectid(id)
+      id if id.is_a? BSON::ObjectId
+
+      get_objectid_by_class(id, controller_name) || id
+    end
+
+    def get_objectid_by_class(id, var)
+      class_name = var.singularize.camelize.constantize
+      field_name = MODEL_FIELD[var.singularize]
+      object = class_name.find_by(field_name.to_sym => id)
+
+      return object.id if object.present?
     end
 
     def session_hash
