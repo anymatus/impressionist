@@ -169,6 +169,7 @@ module ImpressionistController
       else
         id.to_s
       end
+      return id
     end
 
     def params_hash
